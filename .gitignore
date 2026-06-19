@@ -4,3 +4,4 @@ node_modules/
 frontend2/dist/
 backend/src/temp/
 .DS_Store
+.vercel

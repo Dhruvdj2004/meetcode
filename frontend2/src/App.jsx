@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from "react-router";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Homepage from "./pages/Homepage";
+import Login from "./pages/login";
+import Signup from "./pages/signup";
+import Homepage from "./pages/homepage";
 import Adminpanel from "./pages/adminpanel";
 import Problem from "./pages/problem";
 
