@@ -15,11 +15,12 @@ const middleware = async (req, res, next) => {
     }
 
     const payload = jwt.verify(token, process.env.JWT_KEY);
-   
-    const isBlocked = await redisclient.get(`token:${token}`);
-    if (isBlocked) return res.status(401).send("Token expired or blocked");
 
-   
+    if (redisclient.isOpen) {
+      const isBlocked = await redisclient.get(`token:${token}`);
+      if (isBlocked) return res.status(401).send("Token expired or blocked");
+    }
+
     req.result = payload;
 
     next();

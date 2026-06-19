@@ -10,8 +10,11 @@ const problemrouter=require("./routes/problemcreator");
 const submitrouter=require("./routes/submit");
 const airouter=require("./routes/aichatting");
 const cors=require('cors');
+const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
+  .split(",")
+  .map((o) => o.trim());
 app.use(cors({
-  origin:"http://localhost:5173",
+  origin: allowedOrigins,
   credentials:true
 }));
 
@@ -37,14 +40,18 @@ const initializeconnection = async () => {
     console.log("db connected");
 
     try {
-      await redisclient.connect();
+      const connectTimeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Redis connect timed out")), 5000)
+      );
+      await Promise.race([redisclient.connect(), connectTimeout]);
       console.log("redis connected");
     } catch (redisErr) {
-      console.log("⚠️ Redis not connected, continuing without Redis");
+      console.log("⚠️ Redis not connected, continuing without Redis:", redisErr.message);
     }
 
-    app.listen(process.env.PORT, () => {
-      console.log(`server http://localhost:${process.env.PORT}`);
+    const PORT = process.env.PORT || 4000;
+    app.listen(PORT, () => {
+      console.log(`server http://localhost:${PORT}`);
     });
   } catch (err) {
     console.log("server startup error:", err);
