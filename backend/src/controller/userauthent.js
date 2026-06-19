@@ -9,6 +9,13 @@ const jwt = require('jsonwebtoken');
 const redisclient = require('../config/redis');
 const submission = require("../model/submission");
 
+const isProd = process.env.NODE_ENV === "production";
+const cookieOptions = {
+  httpOnly: true,
+  secure: isProd,
+  sameSite: isProd ? "none" : "lax"
+};
+
 // ✅ REGISTER
 const register = async (req, res) => {
   try {
@@ -42,7 +49,7 @@ const register = async (req, res) => {
     );
 
     res.cookie("token", token, {
-      httpOnly: true,
+      ...cookieOptions,
       maxAge: 60 * 60 * 1000
     });
 
@@ -87,7 +94,7 @@ const login = async (req, res) => {
     );
 
     res.cookie("token", token, {
-      httpOnly: true,
+      ...cookieOptions,
       maxAge: 60 * 60 * 1000
     });
 
@@ -117,7 +124,7 @@ const logout = async (req, res) => {
 
     await redisclient.set(`token:${token}`, 'blocked', 'EX', ttl);
 
-    res.cookie("token", null, { expires: new Date(Date.now()) });
+    res.cookie("token", null, { ...cookieOptions, expires: new Date(Date.now()) });
     res.send("Logged out successfully");
 
   } catch (err) {
@@ -141,7 +148,7 @@ const adminregister = async (req, res) => {
       { expiresIn: 60 * 60 }
     );
 
-    res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
+    res.cookie('token', token, { ...cookieOptions, maxAge: 60 * 60 * 1000 });
     res.status(201).send("Admin registered successfully");
 
   } catch (err) {
